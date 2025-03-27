@@ -1,5 +1,25 @@
 import { Equation, Term } from './types';
 
+// absolute value
+function abs(x: number): number {
+  return x < 0 ? -x : x;
+}
+
+// max function
+function max(values: number[]): number {
+  if (values.length === 0) {
+    throw new Error("Cannot find maximum of empty array");
+  }
+  
+  let maximum = values[0];
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] > maximum) {
+      maximum = values[i];
+    }
+  }
+  return maximum;
+}
+
 export function parseEquation(input: string): Equation {
   // Split the equation into left and right parts based on the equals sign
   const parts = input.split('=');
@@ -9,7 +29,7 @@ export function parseEquation(input: string): Equation {
   // Parse both sides of the equation
   const leftTerms = parseTerms(leftSide);
   const rightTerms = parseTerms(rightSide);
-  
+
   // Move all terms to the left side by negating the coefficients of the right side terms
   const negatedRightTerms = rightTerms.map(term => ({
     coefficient: -term.coefficient,
@@ -29,7 +49,7 @@ export function parseEquation(input: string): Equation {
     const currentValue = exponentMap.get(term.exponent) || 0;
     exponentMap.set(term.exponent, currentValue + term.coefficient);
   }
-  
+
   // Convert the map back to an array of terms
   for (const [exponent, coefficient] of exponentMap) {
     // Only include terms with non-zero coefficients
@@ -43,7 +63,7 @@ export function parseEquation(input: string): Equation {
   
   // Find the highest exponent (degree of the equation)
   const degree = combinedTerms.length > 0 
-    ? Math.max(...combinedTerms.map(term => term.exponent)) 
+    ? max(combinedTerms.map(term => term.exponent)) 
     : 0;
   
   return {
@@ -140,7 +160,7 @@ export function equationToString(equation: Equation): string {
   }
   
   const termStrings = equation.terms.map((term, index) => {
-    const coefficient = Math.abs(term.coefficient);
+    const coefficient = abs(term.coefficient);
     const sign = term.coefficient < 0 ? '- ' : (index > 0 ? '+ ' : '');
     
     return `${sign}${coefficient} * X^${term.exponent}`;

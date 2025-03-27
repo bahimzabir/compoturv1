@@ -1,6 +1,34 @@
 import { Equation, Solution } from './types';
 import { equationToString } from './parser';
 
+// Custom absolute value function
+function abs(x: number): number {
+  return x < 0 ? -x : x;
+}
+
+// Custom square root function using Newton's method
+function sqrt(n: number, tolerance: number = 0.000001): number {
+  if (n === 0) {
+    return 0;
+  }
+  
+  // For negative numbers, we'll handle it in the quadratic solver
+  if (n < 0) {
+    return sqrt(-n, tolerance);
+  }
+  
+  // Initial guess
+  let x = n / 2;
+  
+  while (true) {
+    const nextX = (x + n / x) / 2;
+    if (abs(nextX - x) < tolerance) {
+      return nextX;
+    }
+    x = nextX;
+  }
+}
+
 export function solveEquation(equation: Equation): Solution {
   const { terms, degree } = equation;
   const reducedForm = equationToString(equation);
@@ -75,12 +103,19 @@ export function solveEquation(equation: Equation): Solution {
     const discriminant = b * b - 4 * a * c;
     
     if (discriminant < 0) {
+      // Complex solutions when discriminant is negative
+      const realPart = (-b / (2 * a)).toFixed(6).replace(/\.?0+$/, '');
+      const imaginaryPart = (sqrt(-discriminant) / (2 * a)).toFixed(6).replace(/\.?0+$/, '');
+      
       return {
         degree,
         reducedForm,
-        solutions: null,
+        solutions: [
+          `${realPart} + ${imaginaryPart}i`,
+          `${realPart} - ${imaginaryPart}i`
+        ],
         discriminant,
-        message: 'Discriminant is strictly negative, there are no real solutions.'
+        message: 'Discriminant is strictly negative, the two complex solutions are:'
       };
     } else if (discriminant === 0) {
       const solution = (-b / (2 * a)).toFixed(6).replace(/\.?0+$/, '');
@@ -92,7 +127,7 @@ export function solveEquation(equation: Equation): Solution {
         message: 'Discriminant is zero, the solution is:'
       };
     } else {
-      const sqrtDiscriminant = Math.sqrt(discriminant);
+      const sqrtDiscriminant = sqrt(discriminant);
       const solution1 = ((-b + sqrtDiscriminant) / (2 * a)).toFixed(6).replace(/\.?0+$/, '');
       const solution2 = ((-b - sqrtDiscriminant) / (2 * a)).toFixed(6).replace(/\.?0+$/, '');
       
