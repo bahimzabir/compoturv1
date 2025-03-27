@@ -2,10 +2,12 @@ NAME = computor
 
 all: $(NAME)
 
-$(NAME): package.json
-	npm install
+$(NAME): node_modules
 	npm run build
 	chmod +x computor
+
+node_modules:
+	npm install
 
 clean:
 	rm -rf dist
